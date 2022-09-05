@@ -1,0 +1,26 @@
+{
+"views": {
+    "scope": {
+      "map": "function (doc) {\n  if(doc.type == \"program\") {\n    if(doc.inscope.length > 0) {\n      doc.inscope.forEach(function(scope) {\n        emit([!doc.disabled, \"IN\", scope], doc._id)\n      });\n    }\n    if(doc.outscope.length > 0) {\n      doc.outscope.forEach(function(scope) {\n        emit([!doc.disabled, \"OUT\", scope], doc._id)\n      });\n    }\n  }\n  \n}"
+    },
+    "programs": {
+      "reduce": "_count",
+      "map": "function (doc) {\n  if(doc.type == \"program\")\n  emit(doc.disabled, doc.inscope.length, 1);\n}"
+    },
+    "domains_unresolved": {
+      "reduce": "_count",
+      "map": "function (doc) {\n  if(doc.type == \"domain\" && (!doc.hasOwnProperty(\"ips\") || doc.ips.length === 0))\n  emit(doc.program, doc._id);\n}"
+    },
+    "domains": {
+      "reduce": "_count",
+      "map": "function (doc) {\n  if(doc.type == \"domain\")\n  emit(doc.program, doc._id);\n}"
+    },
+    "domains_resolved": {
+      "reduce": "_count",
+      "map": "function (doc) {\n  if(doc.type == \"domain\" && doc.ips.length > 0)\n  emit(doc.program, doc._id);\n}"
+    },
+    "program_all_documents": {
+      "map": "function (doc) {\n  if(doc.type == 'program')\n    emit(doc._id, doc.type)\n  if(doc.hasOwnProperty('program'))\n    emit(doc.program, doc.type)\n}"
+    }
+  }
+}
